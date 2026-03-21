@@ -1152,24 +1152,80 @@ def _configuration_gdrive_helper(to_save):
 
 
 def _configuration_oauth_helper(to_save):
-    active_oauths = 0
     reboot_required = False
-    for element in oauthblueprints:
-        if to_save["config_" + str(element['id']) + "_oauth_client_id"] != element['oauth_client_id'] \
-          or to_save["config_" + str(element['id']) + "_oauth_client_secret"] != element['oauth_client_secret']:
+
+    # Handle deletion of existing providers
+    for element in list(oauthblueprints):
+        if to_save.get("delete_provider_" + str(element['id'])):
+            ub.session.query(ub.OAuthProvider).filter(ub.OAuthProvider.id == element['id']).delete()
+            if hasattr(ub, 'OAuth'):
+                ub.session.query(ub.OAuth).filter(ub.OAuth.provider == str(element['id'])).delete()
+            ub.session_commit("OAuth provider {} deleted".format(element['provider_name']))
+            oauthblueprints.remove(element)
             reboot_required = True
-            element['oauth_client_id'] = to_save["config_" + str(element['id']) + "_oauth_client_id"]
-            element['oauth_client_secret'] = to_save["config_" + str(element['id']) + "_oauth_client_secret"]
-        if to_save["config_" + str(element['id']) + "_oauth_client_id"] \
-          and to_save["config_" + str(element['id']) + "_oauth_client_secret"]:
-            active_oauths += 1
+
+    # Handle adding a new provider
+    new_name = to_save.get("new_provider_name", "").strip()
+    if new_name:
+        new_provider = ub.OAuthProvider()
+        new_provider.provider_name = new_name
+        new_provider.active = False
+        new_provider.oauth_client_id = to_save.get("new_provider_oauth_client_id", "")
+        new_provider.oauth_client_secret = to_save.get("new_provider_oauth_client_secret", "")
+        new_provider.authorization_url = to_save.get("new_provider_authorization_url", "")
+        new_provider.token_url = to_save.get("new_provider_token_url", "")
+        new_provider.api_base_url = to_save.get("new_provider_api_base_url", "")
+        new_provider.user_info_endpoint = to_save.get("new_provider_user_info_endpoint", "")
+        new_provider.user_id_field = to_save.get("new_provider_user_id_field", "id") or "id"
+        new_provider.scopes = to_save.get("new_provider_scopes", "")
+        ub.session.add(new_provider)
+        ub.session_commit("OAuth provider {} created".format(new_name))
+        reboot_required = True
+
+    # Update existing providers
+    for element in oauthblueprints:
+        pid = str(element['id'])
+        new_client_id = to_save.get("config_" + pid + "_oauth_client_id", element['oauth_client_id'])
+        new_client_secret = to_save.get("config_" + pid + "_oauth_client_secret", element['oauth_client_secret'])
+        new_auth_url = to_save.get("config_" + pid + "_authorization_url", element['authorization_url'])
+        new_token_url = to_save.get("config_" + pid + "_token_url", element['token_url'])
+        new_api_base = to_save.get("config_" + pid + "_api_base_url", element['api_base_url'])
+        new_user_info = to_save.get("config_" + pid + "_user_info_endpoint", element['user_info_endpoint'])
+        new_user_id_field = to_save.get("config_" + pid + "_user_id_field", element['user_id_field']) or "id"
+        new_scopes = to_save.get("config_" + pid + "_scopes", element['scopes'])
+
+        if (new_client_id != element['oauth_client_id']
+                or new_client_secret != element['oauth_client_secret']
+                or new_auth_url != element['authorization_url']
+                or new_token_url != element['token_url']
+                or new_api_base != element['api_base_url']):
+            reboot_required = True
+
+        element['oauth_client_id'] = new_client_id
+        element['oauth_client_secret'] = new_client_secret
+        element['authorization_url'] = new_auth_url
+        element['token_url'] = new_token_url
+        element['api_base_url'] = new_api_base
+        element['user_info_endpoint'] = new_user_info
+        element['user_id_field'] = new_user_id_field
+        element['scopes'] = new_scopes
+
+        if new_client_id and new_client_secret:
             element["active"] = 1
         else:
             element["active"] = 0
-        ub.session.query(ub.OAuthProvider).filter(ub.OAuthProvider.id == element['id']).update(
-            {"oauth_client_id": to_save["config_" + str(element['id']) + "_oauth_client_id"],
-             "oauth_client_secret": to_save["config_" + str(element['id']) + "_oauth_client_secret"],
-             "active": element["active"]})
+
+        ub.session.query(ub.OAuthProvider).filter(ub.OAuthProvider.id == element['id']).update({
+            "oauth_client_id": new_client_id,
+            "oauth_client_secret": new_client_secret,
+            "authorization_url": new_auth_url,
+            "token_url": new_token_url,
+            "api_base_url": new_api_base,
+            "user_info_endpoint": new_user_info,
+            "user_id_field": new_user_id_field,
+            "scopes": new_scopes,
+            "active": element["active"],
+        })
     return reboot_required
 
 

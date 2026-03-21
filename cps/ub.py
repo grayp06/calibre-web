@@ -274,6 +274,12 @@ class OAuthProvider(Base):
     oauth_client_id = Column(String)
     oauth_client_secret = Column(String)
     active = Column(Boolean)
+    authorization_url = Column(String, default="")
+    token_url = Column(String, default="")
+    api_base_url = Column(String, default="")
+    user_info_endpoint = Column(String, default="")
+    user_id_field = Column(String, default="id")
+    scopes = Column(String, default="")
 
 
 # Class for anonymous user is derived from User base and completely overrides methods and properties for the
@@ -601,6 +607,57 @@ def migrate_user_session_table(engine, _session):
             trans.commit()
 
 
+def migrate_oauthprovider_table(engine, _session):
+    # Add new generic OAuth columns if they are missing (upgrade from older installs)
+    try:
+        _session.query(exists().where(OAuthProvider.authorization_url)).scalar()
+        _session.commit()
+    except exc.OperationalError:
+        with engine.connect() as conn:
+            trans = conn.begin()
+            conn.execute(text("ALTER TABLE oauthProvider ADD column 'authorization_url' String DEFAULT ''"))
+            conn.execute(text("ALTER TABLE oauthProvider ADD column 'token_url' String DEFAULT ''"))
+            conn.execute(text("ALTER TABLE oauthProvider ADD column 'api_base_url' String DEFAULT ''"))
+            conn.execute(text("ALTER TABLE oauthProvider ADD column 'user_info_endpoint' String DEFAULT ''"))
+            conn.execute(text("ALTER TABLE oauthProvider ADD column 'user_id_field' String DEFAULT 'id'"))
+            conn.execute(text("ALTER TABLE oauthProvider ADD column 'scopes' String DEFAULT ''"))
+            trans.commit()
+        # Pre-populate known values for existing GitHub and Google providers
+        _migrate_oauthprovider_defaults(_session)
+
+
+def _migrate_oauthprovider_defaults(_session):
+    """Set sensible defaults for pre-existing GitHub and Google provider rows."""
+    github_defaults = {
+        "authorization_url": "https://github.com/login/oauth/authorize",
+        "token_url": "https://github.com/login/oauth/access_token",
+        "api_base_url": "https://api.github.com/",
+        "user_info_endpoint": "user",
+        "user_id_field": "id",
+        "scopes": "",
+    }
+    google_defaults = {
+        "authorization_url": "https://accounts.google.com/o/oauth2/auth",
+        "token_url": "https://accounts.google.com/o/oauth2/token",
+        "api_base_url": "https://www.googleapis.com/",
+        "user_info_endpoint": "oauth2/v2/userinfo",
+        "user_id_field": "id",
+        "scopes": "https://www.googleapis.com/auth/userinfo.email",
+    }
+    try:
+        github_row = _session.query(OAuthProvider).filter_by(provider_name="github").first()
+        if github_row and not github_row.authorization_url:
+            for k, v in github_defaults.items():
+                setattr(github_row, k, v)
+        google_row = _session.query(OAuthProvider).filter_by(provider_name="google").first()
+        if google_row and not google_row.authorization_url:
+            for k, v in google_defaults.items():
+                setattr(google_row, k, v)
+        _session.commit()
+    except exc.OperationalError:
+        _session.rollback()
+
+
 # Migrate database to current version, has to be updated after every database change. Currently, migration from
 # maybe 4/5 versions back to current should work.
 # Migration is done by checking if relevant columns are existing, and then adding rows with SQL commands
@@ -609,6 +666,7 @@ def migrate_Database(_session):
     add_missing_tables(engine, _session)
     migrate_registration_table(engine, _session)
     migrate_user_session_table(engine, _session)
+    migrate_oauthprovider_table(engine, _session)
 
 
 def clean_database(_session):
