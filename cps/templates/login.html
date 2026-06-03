@@ -1,4 +1,28 @@
 {% extends "layout.html" %}
+{% block js %}
+{% if passkey_available %}
+<script src="{{ url_for('static', filename='js/passkey.js') }}"></script>
+<script>
+$(function() {
+    if (!window.PublicKeyCredential) {
+        $('#passkey-login-btn').hide();
+        return;
+    }
+    $('#passkey-login-btn').on('click', function() {
+        var btn = $(this);
+        var errDiv = $('#passkey-login-error');
+        btn.prop('disabled', true).text('{{_("Authenticating…")}}');
+        errDiv.hide();
+        var next = $('input[name="next"]').val() || '/';
+        passkeyLogin(next).catch(function(e) {
+            errDiv.text(e.message).show();
+            btn.prop('disabled', false).text('{{_("Sign in with Passkey")}}');
+        });
+    });
+});
+</script>
+{% endif %}
+{% endblock %}
 {% block body %}
 <div class="well col-sm-6 col-sm-offset-2">
   <h2 style="margin-top: 0">{{_('Login')}}</h2>
@@ -32,6 +56,10 @@
     {%endif%}
     {% if config.config_remote_login %}
     <a href="{{url_for('remotelogin.remote_login')}}" id="remote_login" class="pull-right">{{_('Log in with Magic Link')}}</a>
+    {% endif %}
+    {% if passkey_available %}
+    <button type="button" id="passkey-login-btn" class="btn btn-default pull-right">{{_('Sign in with Passkey')}}</button>
+    <div id="passkey-login-error" class="text-danger" style="display:none; margin-top:5px;"></div>
     {% endif %}
     {% if config.config_login_type == 2 %}
       {% if 1 in oauth_check %}

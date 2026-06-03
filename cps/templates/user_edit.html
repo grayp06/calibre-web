@@ -142,6 +142,29 @@
     </div>
     {% endif %}
     </div>
+    {% if profile and passkey_available %}
+    <div class="col-sm-12" style="margin-top:20px;">
+      <h4>{{_('Passkeys')}}</h4>
+      {% if passkeys %}
+      <ul class="list-group" id="passkey-list">
+        {% for pk in passkeys %}
+        <li class="list-group-item" id="passkey-item-{{ pk.id }}">
+          <strong>{{ pk.name }}</strong>
+          <small class="text-muted"> &mdash; {{ pk.created_at.strftime('%Y-%m-%d') }}</small>
+          <button type="button" class="btn btn-xs btn-danger pull-right delete-passkey-btn" data-id="{{ pk.id }}">{{_('Remove')}}</button>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-muted" id="passkey-empty-msg">{{_('No passkeys registered.')}}</p>
+      {% endif %}
+      <div style="margin-top:10px;">
+        <button type="button" id="add-passkey-btn" class="btn btn-default">{{_('Add Passkey')}}</button>
+        <div id="passkey-profile-error" class="text-danger" style="display:none; margin-top:5px;"></div>
+        <div id="passkey-profile-success" class="text-success" style="display:none; margin-top:5px;"></div>
+      </div>
+    </div>
+    {% endif %}
     <div class="col-sm-12">
       <div id="user_submit" class="btn btn-default">{{_('Save')}}</div>
       {% if not profile %}
@@ -184,4 +207,62 @@
 <script src="{{ url_for('static', filename='js/libs/pwstrength/pwstrength-bootstrap.js') }}"></script>
 <script src="{{ url_for('static', filename='js/password.js') }}"></script>
 <script src="{{ url_for('static', filename='js/table.js') }}"></script>
+{% if profile and passkey_available %}
+<script src="{{ url_for('static', filename='js/passkey.js') }}"></script>
+<script>
+$(function() {
+    if (!window.PublicKeyCredential) {
+        $('#add-passkey-btn').hide();
+        return;
+    }
+
+    $('#add-passkey-btn').on('click', function() {
+        var btn = $(this);
+        var errDiv = $('#passkey-profile-error');
+        var okDiv = $('#passkey-profile-success');
+        var name = prompt('{{_("Name this passkey (e.g. iPhone, YubiKey):")}}', 'Passkey');
+        if (name === null) return;
+        btn.prop('disabled', true);
+        errDiv.hide(); okDiv.hide();
+        passkeyRegister(name).then(function(result) {
+            $('#passkey-empty-msg').remove();
+            var list = $('#passkey-list');
+            if (!list.length) {
+                list = $('<ul class="list-group" id="passkey-list"></ul>');
+                btn.closest('div').before(list);
+            }
+            var today = new Date().toISOString().slice(0,10);
+            list.append(
+                '<li class="list-group-item" id="passkey-item-' + result.id + '">' +
+                '<strong>' + $('<span>').text(result.name).html() + '</strong>' +
+                ' <small class="text-muted">&mdash; ' + today + '</small>' +
+                '<button type="button" class="btn btn-xs btn-danger pull-right delete-passkey-btn" data-id="' + result.id + '">{{_("Remove")}}</button>' +
+                '</li>'
+            );
+            okDiv.text('{{_("Passkey added successfully.")}}').show();
+            btn.prop('disabled', false);
+        }).catch(function(e) {
+            errDiv.text(e.message).show();
+            btn.prop('disabled', false);
+        });
+    });
+
+    $(document).on('click', '.delete-passkey-btn', function() {
+        var id = $(this).data('id');
+        if (!confirm('{{_("Remove this passkey?")}}')) return;
+        var btn = $(this);
+        btn.prop('disabled', true);
+        $.post(getPath() + '/passkey/delete/' + id, function() {
+            $('#passkey-item-' + id).remove();
+            if (!$('#passkey-list li').length) {
+                $('#passkey-list').replaceWith('<p class="text-muted" id="passkey-empty-msg">{{_("No passkeys registered.")}}</p>');
+            }
+        }).fail(function() {
+            btn.prop('disabled', false);
+            $('#passkey-profile-error').text('{{_("Failed to remove passkey.")}}').show();
+        });
+    });
+});
+</script>
+{% endif %}
 {% endblock %}

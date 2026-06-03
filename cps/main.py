@@ -59,6 +59,13 @@ def main():
         oauth_available = False
         oauth = None
 
+    try:
+        from .passkey import passkey_bp
+        passkey_available = True
+    except ImportError:
+        passkey_available = False
+        passkey_bp = None
+
     from . import web_server
     init_errorhandler()
 
@@ -82,5 +89,8 @@ def main():
         app.register_blueprint(kobo_auth)
     if oauth_available:
         app.register_blueprint(oauth)
+    if passkey_available:
+        app.register_blueprint(passkey_bp)
+        app.config['PASSKEY_AVAILABLE'] = True
     success = web_server.start()
     sys.exit(0 if success else 1)

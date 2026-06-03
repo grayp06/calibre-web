@@ -25,7 +25,7 @@ import chardet  # dependency of requests
 import copy
 from importlib.metadata import metadata
 
-from flask import Blueprint, jsonify, request, redirect, send_from_directory, make_response, flash, abort, url_for
+from flask import Blueprint, jsonify, request, redirect, send_from_directory, make_response, flash, abort, url_for, current_app
 from flask import session as flask_session
 from flask_babel import gettext as _
 from flask_babel import get_locale
@@ -1361,6 +1361,7 @@ def render_login(username="", password=""):
                                  username=username,
                                  password=password,
                                  oauth_check=oauth_check,
+                                 passkey_available=current_app.config.get('PASSKEY_AVAILABLE', False),
                                  mail=config.get_mail_server_configured(), page="login")
 
 
@@ -1539,6 +1540,8 @@ def profile():
 
     if request.method == "POST":
         change_profile(kobo_support, local_oauth_check, oauth_status, translations, languages)
+    passkeys = ub.session.query(ub.Passkey).filter_by(user_id=current_user.id).all() \
+        if current_app.config.get('PASSKEY_AVAILABLE', False) else []
     return render_title_template("user_edit.html",
                                  translations=translations,
                                  profile=1,
@@ -1548,6 +1551,8 @@ def profile():
                                  kobo_support=kobo_support,
                                  title=_("%(name)s's Profile", name=current_user.name),
                                  page="me",
+                                 passkeys=passkeys,
+                                 passkey_available=current_app.config.get('PASSKEY_AVAILABLE', False),
                                  registered_oauth=local_oauth_check,
                                  oauth_status=oauth_status)
 

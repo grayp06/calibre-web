@@ -42,7 +42,7 @@ except ImportError as e:
         oauth_support = False
 from sqlalchemy import create_engine, exc, exists, event, text
 from sqlalchemy import Column, ForeignKey
-from sqlalchemy import String, Integer, SmallInteger, Boolean, DateTime, Float, JSON
+from sqlalchemy import String, Integer, SmallInteger, Boolean, DateTime, Float, JSON, LargeBinary
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.sql.expression import func
 try:
@@ -255,6 +255,7 @@ class User(UserBase, Base):
     denied_column_value = Column(String, default="")
     allowed_column_value = Column(String, default="")
     remote_auth_token = relationship('RemoteAuthToken', backref='user', lazy='dynamic')
+    passkeys = relationship('Passkey', backref='user', lazy='dynamic')
     view_settings = Column(JSON, default={})
     kobo_only_shelves_sync = Column(Integer, default=0)
     infinite_scroll = Column(Integer, default=0)
@@ -275,6 +276,18 @@ class OAuthProvider(Base):
     oauth_client_id = Column(String)
     oauth_client_secret = Column(String)
     active = Column(Boolean)
+
+
+class Passkey(Base):
+    __tablename__ = 'passkey'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    credential_id = Column(String, unique=True, nullable=False)
+    public_key = Column(LargeBinary, nullable=False)
+    sign_count = Column(Integer, default=0)
+    name = Column(String(128), default="Passkey")
+    created_at = Column(DateTime, default=datetime.now)
 
 
 # Class for anonymous user is derived from User base and completely overrides methods and properties for the
@@ -575,6 +588,8 @@ def add_missing_tables(engine, _session):
         ArchivedBook.__table__.create(bind=engine)
     if not engine.dialect.has_table(engine.connect(), "thumbnail"):
         Thumbnail.__table__.create(bind=engine)
+    if not engine.dialect.has_table(engine.connect(), "passkey"):
+        Passkey.__table__.create(bind=engine)
 
 
 # migrate all settings missing in registration table
