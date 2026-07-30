@@ -1291,6 +1291,10 @@ def _configuration_passkey_helper(to_save):
     if to_save.get("config_webauthn_user_verification") not in ("required", "preferred", "discouraged"):
         to_save["config_webauthn_user_verification"] = "preferred"
     _config_string(to_save, "config_webauthn_user_verification")
+
+    # both have to be pinned, deriving them from the request would mean trusting the Host header
+    if config.config_webauthn_enabled and not (config.config_webauthn_rp_id and config.config_webauthn_origin):
+        return _configuration_result(_('Passkey login needs a Relying Party ID and at least one Origin'))
     return None
 
 

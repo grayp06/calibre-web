@@ -142,7 +142,7 @@
     </div>
     <div data-related="passkey-settings">
       <div class="form-group" style="margin-left:10px;">
-        <label for="config_webauthn_rp_id">{{_('Passkey Relying Party ID (leave empty to use the host name of the request)')}}</label>
+        <label for="config_webauthn_rp_id">{{_('Passkey Relying Party ID, required, for example example.org')}}</label>
         <input type="text" class="form-control" id="config_webauthn_rp_id" name="config_webauthn_rp_id" value="{% if config.config_webauthn_rp_id != None %}{{ config.config_webauthn_rp_id }}{% endif %}" autocomplete="off">
       </div>
       <div class="form-group" style="margin-left:10px;">
@@ -150,7 +150,7 @@
         <input type="text" class="form-control" id="config_webauthn_rp_name" name="config_webauthn_rp_name" value="{% if config.config_webauthn_rp_name != None %}{{ config.config_webauthn_rp_name }}{% endif %}" autocomplete="off">
       </div>
       <div class="form-group" style="margin-left:10px;">
-        <label for="config_webauthn_origin">{{_('Passkey Origins, comma separated (leave empty to use the origin of the request)')}}</label>
+        <label for="config_webauthn_origin">{{_('Passkey Origins, comma separated, required, for example https://books.example.org')}}</label>
         <input type="text" class="form-control" id="config_webauthn_origin" name="config_webauthn_origin" value="{% if config.config_webauthn_origin != None %}{{ config.config_webauthn_origin }}{% endif %}" autocomplete="off">
       </div>
       <div class="form-group" style="margin-left:10px;">

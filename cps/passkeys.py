@@ -18,7 +18,6 @@
 import time
 from datetime import datetime, timezone
 from functools import wraps
-from urllib.parse import urlsplit
 
 from flask import Blueprint, request, jsonify, make_response, flash, g
 from flask import session as flask_session
@@ -62,15 +61,26 @@ AUTHENTICATION_CHALLENGE_KEY = "webauthn_authentication_challenge"
 NICKNAME_MAX_LENGTH = 64
 
 
+def passkeys_configured():
+    """Both the relying party id and the accepted origins have to be pinned in the configuration.
+
+    Deriving them from the request would mean deriving them from the client controlled Host header,
+    which turns the server side origin check into a no-op, so passkeys stay off until they are set.
+    """
+    return bool(config.config_webauthn_rp_id and get_expected_origins())
+
+
 def passkeys_enabled():
-    return bool(webauthn_support and config.config_webauthn_enabled)
+    if not (webauthn_support and config.config_webauthn_enabled):
+        return False
+    if not passkeys_configured():
+        log.warning("Passkeys are enabled but no relying party id and origin are configured, keeping them disabled")
+        return False
+    return True
 
 
 def get_rp_id():
-    """Relying party id, defaults to the host name the request was made to."""
-    if config.config_webauthn_rp_id:
-        return config.config_webauthn_rp_id
-    return urlsplit(request.host_url).hostname or ""
+    return config.config_webauthn_rp_id or ""
 
 
 def get_rp_name():
@@ -78,10 +88,10 @@ def get_rp_name():
 
 
 def get_expected_origins():
-    """Origins an assertion is accepted from, defaults to the origin the request was made to."""
-    if config.config_webauthn_origin:
-        return [strip_whitespaces(o) for o in config.config_webauthn_origin.split(",") if strip_whitespaces(o)]
-    return [request.host_url.rstrip("/")]
+    """Origins an assertion is accepted from. Never falls back to the origin of the request."""
+    if not config.config_webauthn_origin:
+        return []
+    return [strip_whitespaces(o) for o in config.config_webauthn_origin.split(",") if strip_whitespaces(o)]
 
 
 def get_user_verification():
@@ -205,6 +215,13 @@ def _normalize_credential_id(value):
         return None
 
 
+def _rate_limit_key():
+    """Registration is authenticated, so account for it per user and fall back to the address."""
+    if current_user is not None and current_user.is_authenticated:
+        return "user:{}".format(current_user.id)
+    return get_remote_address()
+
+
 def _log_failure(message, *args):
     ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
     log.warning(message + ' IP-address: %s', *(args + (ip_address,)))
@@ -213,6 +230,8 @@ def _log_failure(message, *args):
 @passkey.route("/webauthn/register/options", methods=["POST"])
 @passkey_login_required
 @passkey_feature_required
+@limiter.limit("60/day", key_func=_rate_limit_key)
+@limiter.limit("10/minute", key_func=_rate_limit_key)
 def register_options():
     options = generate_registration_options(
         rp_id=get_rp_id(),
@@ -222,7 +241,9 @@ def register_options():
         user_display_name=current_user.name,
         timeout=CHALLENGE_TIMEOUT * 1000,
         exclude_credentials=_descriptors(_credentials_of(current_user.id, active_only=False)),
-        authenticator_selection=AuthenticatorSelectionCriteria(resident_key=ResidentKeyRequirement.PREFERRED,
+        # discoverable credentials are required, otherwise the authenticator is free to create a
+        # credential that the usernameless login flow cannot offer back to the user
+        authenticator_selection=AuthenticatorSelectionCriteria(resident_key=ResidentKeyRequirement.REQUIRED,
                                                                user_verification=get_user_verification()),
     )
     _store_challenge(REGISTRATION_CHALLENGE_KEY, options.challenge)
@@ -232,6 +253,8 @@ def register_options():
 @passkey.route("/webauthn/register/verify", methods=["POST"])
 @passkey_login_required
 @passkey_feature_required
+@limiter.limit("60/day", key_func=_rate_limit_key)
+@limiter.limit("10/minute", key_func=_rate_limit_key)
 def register_verify():
     data = request.get_json(silent=True) or {}
     credential = data.get("credential")
@@ -366,6 +389,13 @@ def authenticate_verify():
             ub.WebAuthnCredential.is_active.is_(True)).first()
     if not stored:
         _log_failure('Passkey login failed, unknown credential.')
+        # tells apart "the authenticator offered a passkey belonging to some other relying party"
+        # from "the credential id did not survive the round trip", which look identical otherwise
+        known = [row.credential_id for row in ub.session.query(ub.WebAuthnCredential).filter(
+            ub.WebAuthnCredential.is_active.is_(True)).all()]
+        log.debug("Passkey login: authenticator returned credential id %r (as sent: %r), "
+                  "%d active credential(s) stored: %s",
+                  credential_id, credential.get("rawId") or credential.get("id"), len(known), known)
         return _error(_("Wrong Username or Password"), 401)
 
     user = ub.session.query(ub.User).filter(ub.User.id == stored.user_id).first()

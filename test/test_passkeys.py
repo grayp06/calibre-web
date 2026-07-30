@@ -508,6 +508,31 @@ def test_migration_adds_the_credential_table(tmp_path):
 
 # ############################## feature switch ###############################
 
+def test_registration_requires_a_discoverable_credential(env):
+    login_as(env, "alice")
+    options = env["client"].post("/webauthn/register/options", json={}).get_json()
+
+    selection = options["authenticatorSelection"]
+    assert selection["residentKey"] == "required"
+    # the deprecated companion flag has to agree, older authenticators only look at that one
+    assert selection["requireResidentKey"] is True
+
+
+def test_endpoints_are_off_when_the_relying_party_is_not_configured(env):
+    from cps import config
+
+    login_as(env, "alice")
+    for field in ("config_webauthn_rp_id", "config_webauthn_origin"):
+        original = getattr(config, field)
+        setattr(config, field, "")
+        try:
+            assert env["client"].post("/webauthn/register/options", json={}).status_code == 403
+            assert env["client"].post("/webauthn/auth/options", json={}).status_code == 403
+            assert env["client"].post("/webauthn/auth/verify", json={}).status_code == 403
+        finally:
+            setattr(config, field, original)
+
+
 def test_endpoints_are_off_when_feature_is_disabled(env):
     from cps import config
 
