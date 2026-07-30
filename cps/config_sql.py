@@ -124,6 +124,12 @@ class _Settings(_Base):
 
     config_kobo_proxy = Column(Boolean, default=False)
 
+    config_webauthn_enabled = Column(Boolean, default=False)
+    config_webauthn_rp_id = Column(String, default="")
+    config_webauthn_rp_name = Column(String, default="")
+    config_webauthn_origin = Column(String, default="")
+    config_webauthn_user_verification = Column(String, default="preferred")
+
     config_ldap_provider_url = Column(String, default='example.org')
     config_ldap_port = Column(SmallInteger, default=389)
     config_ldap_authentication = Column(SmallInteger, default=constants.LDAP_AUTH_SIMPLE)

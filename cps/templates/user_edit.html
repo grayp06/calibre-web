@@ -60,6 +60,39 @@
       {% endfor %}
     </div>
     {% endif %}
+    {% if passkey_support and profile and not new_user %}
+    <label>{{ _('Passkeys') }}</label>
+    <div class="form-group col">
+      {% if passkeys %}
+      <table class="table" id="passkey_list">
+        <thead>
+          <tr>
+            <th>{{ _('Name') }}</th>
+            <th>{{ _('Added') }}</th>
+            <th>{{ _('Last Used') }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for credential in passkeys %}
+          <tr>
+            <td>{{ credential.nickname }}</td>
+            <td>{{ credential.created|formatdate if credential.created }}</td>
+            <td>{{ credential.last_used|formatdate if credential.last_used else _('Never') }}</td>
+            <td>
+              <div class="btn btn-danger btn-xs passkey-delete" data-credential-id="{{ credential.id }}" data-confirm="{{ _('Do you really want to delete this passkey?') }}" data-failed="{{ _('Could not delete the passkey') }}">{{ _('Delete') }}</div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>{{ _('No passkeys registered yet') }}</p>
+      {% endif %}
+      <div class="btn btn-default passkey-requires-support" id="passkey_register" data-prompt="{{ _('Name for this passkey') }}" data-default-name="{{ _('Passkey') }}" data-failed="{{ _('Passkey registration failed') }}" data-unsupported="{{ _('This browser does not support passkeys') }}">{{ _('Add Passkey') }}</div>
+      <div id="passkey_status"></div>
+    </div>
+    {% endif %}
     {% if kobo_support and not new_user %}
     <label>{{ _('Kobo Sync Token')}}</label>
     <div class="form-group col">
@@ -184,4 +217,7 @@
 <script src="{{ url_for('static', filename='js/libs/pwstrength/pwstrength-bootstrap.js') }}"></script>
 <script src="{{ url_for('static', filename='js/password.js') }}"></script>
 <script src="{{ url_for('static', filename='js/table.js') }}"></script>
+{% if passkey_support %}
+<script src="{{ url_for('static', filename='js/passkeys.js') }}"></script>
+{% endif %}
 {% endblock %}

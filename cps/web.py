@@ -59,12 +59,14 @@ from .services.worker import WorkerThread
 from .tasks_status import render_task_status
 from .usermanagement import user_login_required
 from .string_helper import strip_whitespaces
+from .passkeys import passkeys_enabled, list_user_passkeys, webauthn_support
 
 
 feature_support = {
     'ldap': bool(services.ldap),
     'goodreads': bool(services.goodreads_support),
-    'kobo': bool(services.kobo)
+    'kobo': bool(services.kobo),
+    'passkeys': webauthn_support
 }
 
 try:
@@ -1374,6 +1376,7 @@ def render_login(username="", password=""):
                                  username=username,
                                  password=password,
                                  oauth_check=oauth_check,
+                                 passkey_login=passkeys_enabled(),
                                  mail=config.get_mail_server_configured(), page="login")
 
 
@@ -1552,6 +1555,7 @@ def profile():
 
     if request.method == "POST":
         change_profile(kobo_support, local_oauth_check, oauth_status, translations, languages)
+    passkey_support = passkeys_enabled() and not current_user.role_anonymous()
     return render_title_template("user_edit.html",
                                  translations=translations,
                                  profile=1,
@@ -1559,6 +1563,8 @@ def profile():
                                  content=current_user,
                                  config=config,
                                  kobo_support=kobo_support,
+                                 passkey_support=passkey_support,
+                                 passkeys=list_user_passkeys(current_user.id) if passkey_support else [],
                                  title=_("%(name)s's Profile", name=current_user.name),
                                  page="me",
                                  registered_oauth=local_oauth_check,
