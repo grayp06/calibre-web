@@ -1,0 +1,31 @@
+# Homelab image: LinuxServer's calibre-web packaging + this fork's source.
+#
+# Rationale: the LSIO image supplies the runtime we already depend on
+# (s6-overlay, PUID/PGID handling, the /config layout our PVC uses, and the
+# bundled conversion binaries). We only want to replace the application code,
+# so we overlay cps/ rather than rebuilding the runtime from scratch. This
+# keeps the existing PersistentVolumeClaim working untouched.
+#
+# BASE must stay pinned; bump it deliberately (Renovate tracks it).
+ARG BASE=lscr.io/linuxserver/calibre-web:0.6.26-ls392
+FROM ${BASE}
+
+# This fork's source tree is ahead of the version baked into the base image
+# (0.6.27b vs 0.6.26), so reinstall requirements to pick up any new or
+# newer dependencies, plus the optional webauthn package that the passkey
+# feature needs. /lsiopy is LSIO's virtualenv.
+COPY requirements.txt optional-requirements.txt /tmp/cw/
+
+RUN /lsiopy/bin/pip install --no-cache-dir --upgrade \
+      -r /tmp/cw/requirements.txt \
+      "webauthn>=2.0.0,<3.0.0" \
+ && rm -rf /tmp/cw
+
+# Application code last so source-only changes reuse the layers above.
+COPY cps.py /app/calibre-web/cps.py
+COPY cps/ /app/calibre-web/cps/
+
+# Sanity-check at build time: fail the build rather than ship an image whose
+# app code can't even be imported or whose passkey dependency is missing.
+RUN /lsiopy/bin/python3 -c "import webauthn; print('webauthn', webauthn.__version__)" \
+ && /lsiopy/bin/python3 -c "import sys; sys.path.insert(0, '/app/calibre-web'); import cps; print('cps import ok')"
