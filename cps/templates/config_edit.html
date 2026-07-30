@@ -135,6 +135,34 @@
       <input type="checkbox" id="config_remote_login" name="config_remote_login" {% if config.config_remote_login %}checked{% endif %}>
       <label for="config_remote_login">{{_('Enable Magic Link Remote Login')}}</label>
     </div>
+    {% if feature_support['passkeys'] %}
+    <div class="form-group">
+      <input type="checkbox" id="config_webauthn_enabled" name="config_webauthn_enabled" data-control="passkey-settings" {% if config.config_webauthn_enabled %}checked{% endif %}>
+      <label for="config_webauthn_enabled">{{_('Enable Passkey Login')}}</label>
+    </div>
+    <div data-related="passkey-settings">
+      <div class="form-group" style="margin-left:10px;">
+        <label for="config_webauthn_rp_id">{{_('Passkey Relying Party ID (leave empty to use the host name of the request)')}}</label>
+        <input type="text" class="form-control" id="config_webauthn_rp_id" name="config_webauthn_rp_id" value="{% if config.config_webauthn_rp_id != None %}{{ config.config_webauthn_rp_id }}{% endif %}" autocomplete="off">
+      </div>
+      <div class="form-group" style="margin-left:10px;">
+        <label for="config_webauthn_rp_name">{{_('Passkey Relying Party Name (leave empty to use the instance title)')}}</label>
+        <input type="text" class="form-control" id="config_webauthn_rp_name" name="config_webauthn_rp_name" value="{% if config.config_webauthn_rp_name != None %}{{ config.config_webauthn_rp_name }}{% endif %}" autocomplete="off">
+      </div>
+      <div class="form-group" style="margin-left:10px;">
+        <label for="config_webauthn_origin">{{_('Passkey Origins, comma separated (leave empty to use the origin of the request)')}}</label>
+        <input type="text" class="form-control" id="config_webauthn_origin" name="config_webauthn_origin" value="{% if config.config_webauthn_origin != None %}{{ config.config_webauthn_origin }}{% endif %}" autocomplete="off">
+      </div>
+      <div class="form-group" style="margin-left:10px;">
+        <label for="config_webauthn_user_verification">{{_('Passkey User Verification')}}</label>
+        <select name="config_webauthn_user_verification" id="config_webauthn_user_verification" class="form-control">
+          <option value="preferred" {% if config.config_webauthn_user_verification == 'preferred' %}selected{% endif %}>{{_('Preferred')}}</option>
+          <option value="required" {% if config.config_webauthn_user_verification == 'required' %}selected{% endif %}>{{_('Required')}}</option>
+          <option value="discouraged" {% if config.config_webauthn_user_verification == 'discouraged' %}selected{% endif %}>{{_('Discouraged')}}</option>
+        </select>
+      </div>
+    </div>
+    {% endif %}
     {% if feature_support['kobo'] %}
     <div class="form-group">
       <input type="checkbox" id="config_kobo_sync" name="config_kobo_sync" data-control="kobo-settings" {% if config.config_kobo_sync %}checked{% endif %}>

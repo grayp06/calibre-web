@@ -56,6 +56,7 @@ from .usermanagement import user_login_required
 from .cw_babel import get_available_translations, get_available_locale, get_user_locale_language
 from . import debug_info
 from .string_helper import strip_whitespaces
+from .passkeys import webauthn_support
 
 log = logger.create()
 
@@ -66,7 +67,8 @@ feature_support = {
     'updater': constants.UPDATER_AVAILABLE,
     'gmail': bool(services.gmail),
     'scheduler': schedule.use_APScheduler,
-    'gdrive': gdrive_support
+    'gdrive': gdrive_support,
+    'passkeys': webauthn_support
 }
 
 try:
@@ -1262,6 +1264,36 @@ def _configuration_ldap_helper(to_save):
     return reboot_required, None
 
 
+def _configuration_passkey_helper(to_save):
+    _config_checkbox(to_save, "config_webauthn_enabled")
+    _config_string(to_save, "config_webauthn_rp_name")
+
+    rp_id = strip_whitespaces(to_save.get("config_webauthn_rp_id", ""))
+    if rp_id and (("/" in rp_id) or (":" in rp_id)):
+        return _configuration_result(_('Passkey Relying Party ID has to be a plain host name, '
+                                       'without scheme, port or path'))
+    to_save["config_webauthn_rp_id"] = rp_id
+    _config_string(to_save, "config_webauthn_rp_id")
+
+    origins = []
+    for origin in to_save.get("config_webauthn_origin", "").split(","):
+        origin = strip_whitespaces(origin)
+        if not origin:
+            continue
+        address = urlparse(origin)
+        if address.scheme not in ("http", "https") or not address.netloc:
+            return _configuration_result(_('Passkey Origin has to be a full URL, '
+                                           'for example https://example.org:8083'))
+        origins.append("{}://{}".format(address.scheme, address.netloc))
+    to_save["config_webauthn_origin"] = ",".join(origins)
+    _config_string(to_save, "config_webauthn_origin")
+
+    if to_save.get("config_webauthn_user_verification") not in ("required", "preferred", "discouraged"):
+        to_save["config_webauthn_user_verification"] = "preferred"
+    _config_string(to_save, "config_webauthn_user_verification")
+    return None
+
+
 @admi.route("/ajax/simulatedbchange", methods=['POST'])
 @user_login_required
 @admin_required
@@ -1831,6 +1863,12 @@ def _configuration_update_helper():
         if not config.config_remote_login:
             ub.session.query(ub.RemoteAuthToken).filter(ub.RemoteAuthToken.token_type == 0).delete()
 
+        # Passkey configuration
+        if feature_support['passkeys']:
+            message = _configuration_passkey_helper(to_save)
+            if message:
+                return message
+
         # Goodreads configuration
         _config_checkbox(to_save, "config_use_goodreads")
         _config_string(to_save, "config_goodreads_api_key")
@@ -2001,6 +2039,8 @@ def _delete_user(content):
             ub.session.query(ub.RemoteAuthToken).filter(ub.RemoteAuthToken.user_id == content.id).delete()
             ub.session.query(ub.User_Sessions).filter(ub.User_Sessions.user_id == content.id).delete()
             ub.session.query(ub.KoboSyncedBooks).filter(ub.KoboSyncedBooks.user_id == content.id).delete()
+            ub.session.query(ub.WebAuthnCredential).filter(
+                ub.WebAuthnCredential.user_id == content.id).delete()
             # delete KoboReadingState and all it's children
             kobo_entries = ub.session.query(ub.KoboReadingState).filter(ub.KoboReadingState.user_id == content.id).all()
             for kobo_entry in kobo_entries:

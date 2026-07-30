@@ -116,6 +116,9 @@ comics = [
 kobo = [
     "jsonschema>=3.2.0,<4.30.0",
 ]
+passkeys = [
+    "webauthn>=2.0.0,<3.0.0",
+]
 
 [project.scripts]
 cps = "calibreweb:main"
