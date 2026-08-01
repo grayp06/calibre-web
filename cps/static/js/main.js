@@ -390,7 +390,11 @@ $(function() {
         layoutMode : "fitRows"
     });
 
-    if ($(".load-more").length && $(".next").length && $("body").data("infinite-scroll") == 1) {
+    var infiniteScrollEnabled = $("body").attr("data-infinite-scroll") === "1";
+
+    // The profile toggle is the single source of truth. Do not initialize the
+    // plugin when it is off, so regular pagination remains fully functional.
+    if (infiniteScrollEnabled && $(".load-more").length && $(".next").length) {
         var $loadMore = $(".load-more .row").infiniteScroll({
             debug: false,
             // selector for the paged navigation (it will be hidden)
