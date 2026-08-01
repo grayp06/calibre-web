@@ -1,0 +1,208 @@
+/* Modern default theme. CaliBlur keeps its purpose-built visual language. */
+body:not(.blur) {
+  --cw-accent: #2563eb;
+  --cw-accent-dark: #1d4ed8;
+  --cw-bg: #f6f7fb;
+  --cw-border: #e2e8f0;
+  --cw-ink: #172033;
+  --cw-muted: #64748b;
+  --cw-surface: #fff;
+  background: var(--cw-bg);
+  color: var(--cw-ink);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body:not(.blur) h1,
+body:not(.blur) h2,
+body:not(.blur) h3 {
+  color: var(--cw-ink);
+  font-weight: 650;
+  letter-spacing: -.025em;
+}
+
+body:not(.blur) a { color: var(--cw-accent); }
+
+body:not(.blur) .app-header {
+  background: rgba(255, 255, 255, .96);
+  border: 0;
+  border-bottom: 1px solid var(--cw-border);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, .05);
+  min-height: 64px;
+  margin-bottom: 24px;
+}
+
+body:not(.blur) .app-header .navbar-brand {
+  color: var(--cw-ink);
+  font-family: inherit;
+  font-size: 21px;
+  font-weight: 750;
+  line-height: 34px;
+}
+
+body:not(.blur) .app-header .navbar-nav > li > a {
+  color: #475569;
+  line-height: 34px;
+  transition: color .15s ease, background .15s ease;
+}
+
+body:not(.blur) .app-header .navbar-nav > li > a:hover,
+body:not(.blur) .app-header .navbar-nav > li > a:focus {
+  background: #eff6ff;
+  color: var(--cw-accent);
+}
+
+body:not(.blur) .navbar-form .input-group { min-width: min(340px, 32vw); }
+
+body:not(.blur) .form-control {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: none;
+  min-height: 38px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+body:not(.blur) .form-control:focus {
+  border-color: var(--cw-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .14);
+}
+
+body:not(.blur) .app-shell { padding: 0 24px; }
+body:not(.blur) .app-sidebar { padding-right: 22px; }
+
+body:not(.blur) .navigation {
+  background: var(--cw-surface);
+  border: 1px solid var(--cw-border);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+body:not(.blur) .navigation .nav-head {
+  color: var(--cw-muted);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .1em;
+  margin: 14px 10px 8px;
+}
+
+body:not(.blur) .navigation .nav-head:nth-child(1n+2) {
+  border-color: var(--cw-border);
+  padding-top: 16px;
+}
+
+body:not(.blur) .navigation li a {
+  border-radius: 8px;
+  color: #475569;
+  padding: 9px 11px;
+  transition: background .15s ease, color .15s ease, transform .15s ease;
+}
+
+body:not(.blur) .navigation li a:hover {
+  background: #f1f5f9;
+  color: var(--cw-ink);
+  transform: translateX(2px);
+}
+
+body:not(.blur) .navigation li.active > a {
+  background: #eff6ff;
+  color: var(--cw-accent-dark);
+  font-weight: 650;
+}
+
+body:not(.blur) .navigation .create-shelf { margin: 18px 0; }
+body:not(.blur) .navigation .create-shelf a { background: var(--cw-accent); }
+
+body:not(.blur) .app-content {
+  background: var(--cw-surface);
+  border: 1px solid var(--cw-border);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .05);
+  padding: 4px 28px 28px;
+}
+
+body:not(.blur) .container-fluid .book .cover span img,
+body:not(.blur) .container-fluid .single .cover img {
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, .18);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+
+body:not(.blur) .container-fluid .book:hover .cover span img {
+  box-shadow: 0 14px 30px rgba(15, 23, 42, .24);
+  transform: translateY(-3px);
+}
+
+body:not(.blur) .container-fluid .book .meta .title { color: var(--cw-ink); }
+body:not(.blur) .container-fluid .book .meta .author { color: var(--cw-muted); }
+
+body:not(.blur) .btn {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 14px;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+
+body:not(.blur) .btn:hover { transform: translateY(-1px); }
+body:not(.blur) .btn-default { background: #fff; border-color: #cbd5e1; color: #334155; }
+body:not(.blur) .btn-primary { background: var(--cw-accent); border-color: var(--cw-accent); }
+
+body:not(.blur) .panel,
+body:not(.blur) .modal-content,
+body:not(.blur) .table {
+  border-color: var(--cw-border);
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+body:not(.blur) .table > thead > tr > th { border-bottom-color: var(--cw-border); color: #475569; }
+body:not(.blur) .table-striped > tbody > tr:nth-of-type(odd) { background: #f8fafc; }
+
+/* Settings checkboxes become accessible switches without changing form values. */
+body:not(.blur) .app-content form .form-group > input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #cbd5e1;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-block;
+  height: 24px;
+  margin: 0 10px 0 0;
+  position: relative;
+  vertical-align: middle;
+  width: 44px;
+  transition: background .2s ease;
+}
+
+body:not(.blur) .app-content form .form-group > input[type="checkbox"]::after {
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .3);
+  content: "";
+  height: 18px;
+  left: 3px;
+  position: absolute;
+  top: 3px;
+  transition: transform .2s ease;
+  width: 18px;
+}
+
+body:not(.blur) .app-content form .form-group > input[type="checkbox"]:checked { background: var(--cw-accent); }
+body:not(.blur) .app-content form .form-group > input[type="checkbox"]:checked::after { transform: translateX(20px); }
+body:not(.blur) .app-content form .form-group > input[type="checkbox"]:focus { box-shadow: 0 0 0 3px rgba(37, 99, 235, .2); outline: 0; }
+body:not(.blur) .app-content form .form-group > input[type="checkbox"] + label { cursor: pointer; font-weight: 500; vertical-align: middle; }
+
+body:not(.blur) .pagination > li > a {
+  border-color: var(--cw-border);
+  color: #475569;
+  margin: 0 2px;
+}
+
+body:not(.blur) .pagination > .active > a { background: var(--cw-accent); border-color: var(--cw-accent); }
+
+@media (max-width: 767px) {
+  body:not(.blur) .app-header { margin-bottom: 12px; }
+  body:not(.blur) .app-shell { padding: 0 10px; }
+  body:not(.blur) .app-content { border-radius: 12px; padding: 4px 16px 20px; }
+  body:not(.blur) .navbar-form .input-group { min-width: 100%; }
+}
