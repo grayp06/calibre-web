@@ -19,6 +19,9 @@
       </label>
     </div>
     <button type="submit" name="submit" class="btn btn-default">{{_('Login')}}</button>
+    {% if passkey_login %}
+    <button type="button" id="passkey_login" class="btn btn-default passkey-requires-support" data-failed="{{_('Passkey login failed')}}" data-unsupported="{{_('This browser does not support passkeys')}}">{{_('Sign in with passkey')}}</button>
+    {% endif %}
     {% if config.config_login_type == 0 and mail%}
     <button type="submit" name="forgot" value="forgot" class="btn btn-default">{{_('Forgot Password?')}}</button>
     {% endif %}
@@ -51,10 +54,18 @@
       {% endif %}
     {% endif %}
   </form>
+  {% if passkey_login %}
+  <div id="passkey_status" class="passkey-requires-support"></div>
+  {% endif %}
 </div>
   {% if error %}
   <div class="col-sm-6 col-sm-offset-2">
     <div class="alert alert-danger">{{error}}</div>
   </div>
   {% endif %}
+{% endblock %}
+{% block js %}
+{% if passkey_login %}
+<script src="{{ url_for('static', filename='js/passkeys.js') }}"></script>
+{% endif %}
 {% endblock %}

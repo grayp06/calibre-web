@@ -258,6 +258,7 @@ class User(UserBase, Base):
     view_settings = Column(JSON, default={})
     kobo_only_shelves_sync = Column(Integer, default=0)
     infinite_scroll = Column(Integer, default=0)
+    webauthn_credentials = relationship('WebAuthnCredential', backref='user', lazy='dynamic')
 
 
 if oauth_support:
@@ -547,6 +548,26 @@ class RemoteAuthToken(Base):
         return '<Token %r>' % self.id
 
 
+class WebAuthnCredential(Base):
+    __tablename__ = 'webauthn_credential'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'), index=True)
+    # credential_id and public_key are stored base64url encoded, as they are handed to the browser that way
+    credential_id = Column(String, unique=True)
+    public_key = Column(String)
+    sign_count = Column(Integer, default=0)
+    aaguid = Column(String, default="")
+    transports = Column(String, default="")
+    nickname = Column(String, default="")
+    is_active = Column(Boolean, default=True)
+    created = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    last_used = Column(DateTime, nullable=True)
+
+    def __repr__(self):
+        return '<WebAuthnCredential %r>' % self.nickname
+
+
 def filename(context):
     file_format = context.get_current_parameters()['format']
     if file_format == 'jpeg':
@@ -575,6 +596,8 @@ def add_missing_tables(engine, _session):
         ArchivedBook.__table__.create(bind=engine)
     if not engine.dialect.has_table(engine.connect(), "thumbnail"):
         Thumbnail.__table__.create(bind=engine)
+    if not engine.dialect.has_table(engine.connect(), "webauthn_credential"):
+        WebAuthnCredential.__table__.create(bind=engine)
 
 
 # migrate all settings missing in registration table
