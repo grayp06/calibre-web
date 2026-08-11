@@ -1,208 +1,419 @@
-/* Modern default theme. CaliBlur keeps its purpose-built visual language. */
+/* Modern default theme. CaliBlur keeps its purpose-built visual language.
+   Everything here is scoped to `body:not(.blur)` and is presentational only. */
 body:not(.blur) {
-  --cw-accent: #2563eb;
-  --cw-accent-dark: #1d4ed8;
-  --cw-bg: #f6f7fb;
-  --cw-border: #e2e8f0;
-  --cw-ink: #172033;
-  --cw-muted: #64748b;
+  --cw-accent: #2f8b7a;
+  --cw-accent-dark: #256e60;
+  --cw-accent-soft: #eef5f3;
+  --cw-bg: #f5f6f8;
   --cw-surface: #fff;
+  --cw-border: #e4e7ec;
+  --cw-border-strong: #d3d8e0;
+  --cw-ink: #1f2733;
+  --cw-body: #414c5c;
+  --cw-muted: #737e8d;
+  --cw-shadow: 0 1px 2px rgba(16, 24, 40, .05);
   background: var(--cw-bg);
-  color: var(--cw-ink);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--cw-body);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
 }
 
 body:not(.blur) h1,
 body:not(.blur) h2,
-body:not(.blur) h3 {
+body:not(.blur) h3,
+body:not(.blur) h4 {
   color: var(--cw-ink);
-  font-weight: 650;
-  letter-spacing: -.025em;
+  font-weight: 600;
+  letter-spacing: -.01em;
 }
 
-body:not(.blur) a { color: var(--cw-accent); }
+body:not(.blur) h1 { font-size: 24px; }
+body:not(.blur) h2,
+body:not(.blur) body h2 { font-size: 19px; color: var(--cw-ink); }
+body:not(.blur) h3 { font-size: 16px; }
+
+/* Links, but never link-shaped buttons: those get their own colours below. */
+body:not(.blur) a:not(.btn) { color: var(--cw-accent-dark); }
+body:not(.blur) a:not(.btn):hover,
+body:not(.blur) a:not(.btn):focus { color: var(--cw-accent); }
+
+/* ---------- Header ---------- */
 
 body:not(.blur) .app-header {
-  background: rgba(255, 255, 255, .96);
+  background: var(--cw-surface);
   border: 0;
   border-bottom: 1px solid var(--cw-border);
-  box-shadow: 0 4px 18px rgba(15, 23, 42, .05);
-  min-height: 64px;
-  margin-bottom: 24px;
+  box-shadow: none;
+  min-height: 54px;
+  margin-bottom: 20px;
 }
 
 body:not(.blur) .app-header .navbar-brand {
-  color: var(--cw-ink);
   font-family: inherit;
-  font-size: 21px;
-  font-weight: 750;
-  line-height: 34px;
+  font-size: 18px;
+  font-weight: 600;
+  height: auto;
+  letter-spacing: -.01em;
+  line-height: 30px;
+  padding: 12px 15px;
 }
 
 body:not(.blur) .app-header .navbar-nav > li > a {
-  color: #475569;
-  line-height: 34px;
-  transition: color .15s ease, background .15s ease;
+  border-radius: 6px;
+  color: var(--cw-body);
+  font-size: 13px;
+  line-height: 20px;
+  margin: 9px 2px;
+  padding: 7px 11px;
+  transition: color .12s ease, background .12s ease;
 }
 
 body:not(.blur) .app-header .navbar-nav > li > a:hover,
-body:not(.blur) .app-header .navbar-nav > li > a:focus {
-  background: #eff6ff;
-  color: var(--cw-accent);
+body:not(.blur) .app-header .navbar-nav > li > a:focus,
+body:not(.blur) .app-header .navbar-nav > .open > a {
+  background: var(--cw-accent-soft);
+  color: var(--cw-accent-dark);
 }
 
-body:not(.blur) .navbar-form .input-group { min-width: min(340px, 32vw); }
+body:not(.blur) .app-header .navbar-form { margin: 10px 0; }
+body:not(.blur) .navbar-form .input-group { min-width: min(280px, 26vw); }
+
+/* ---------- Forms ---------- */
 
 body:not(.blur) .form-control {
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border: 1px solid var(--cw-border-strong);
+  border-radius: 6px;
   box-shadow: none;
-  min-height: 38px;
-  transition: border-color .15s ease, box-shadow .15s ease;
+  color: var(--cw-ink);
+  font-size: 14px;
+  height: auto;
+  min-height: 34px;
+  transition: border-color .12s ease, box-shadow .12s ease;
 }
 
 body:not(.blur) .form-control:focus {
   border-color: var(--cw-accent);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, .14);
+  box-shadow: 0 0 0 3px rgba(47, 139, 122, .15);
 }
 
-body:not(.blur) .app-shell { padding: 0 24px; }
-body:not(.blur) .app-sidebar { padding-right: 22px; }
+/* Native checkboxes and radios, just tinted. No layout changes. */
+body:not(.blur) input[type="checkbox"],
+body:not(.blur) input[type="radio"] {
+  accent-color: var(--cw-accent);
+  height: 15px;
+  width: 15px;
+}
+
+/* ---------- Shell ---------- */
+
+body:not(.blur) .app-shell { padding: 0 18px; }
+body:not(.blur) .app-sidebar { padding-right: 18px; }
 
 body:not(.blur) .navigation {
   background: var(--cw-surface);
   border: 1px solid var(--cw-border);
-  border-radius: 14px;
-  padding: 10px;
+  border-radius: 10px;
+  box-shadow: var(--cw-shadow);
+  padding: 6px;
 }
 
 body:not(.blur) .navigation .nav-head {
   color: var(--cw-muted);
   font-size: 11px;
-  font-weight: 750;
-  letter-spacing: .1em;
-  margin: 14px 10px 8px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  margin: 12px 10px 4px;
 }
 
 body:not(.blur) .navigation .nav-head:nth-child(1n+2) {
   border-color: var(--cw-border);
-  padding-top: 16px;
+  padding-top: 14px;
 }
 
 body:not(.blur) .navigation li a {
-  border-radius: 8px;
-  color: #475569;
-  padding: 9px 11px;
-  transition: background .15s ease, color .15s ease, transform .15s ease;
+  border-radius: 6px;
+  color: var(--cw-body);
+  font-size: 13.5px;
+  padding: 7px 10px;
+  transition: background .12s ease, color .12s ease;
 }
 
 body:not(.blur) .navigation li a:hover {
-  background: #f1f5f9;
+  background: #f1f3f6;
   color: var(--cw-ink);
-  transform: translateX(2px);
 }
 
 body:not(.blur) .navigation li.active > a {
-  background: #eff6ff;
+  background: var(--cw-accent-soft);
   color: var(--cw-accent-dark);
-  font-weight: 650;
+  font-weight: 600;
 }
 
-body:not(.blur) .navigation .create-shelf { margin: 18px 0; }
-body:not(.blur) .navigation .create-shelf a { background: var(--cw-accent); }
+body:not(.blur) .navigation .create-shelf { margin: 14px 0 10px; }
+
+body:not(.blur) .navigation .create-shelf a,
+body:not(.blur) .navigation .create-shelf a:hover,
+body:not(.blur) .navigation .create-shelf a:focus {
+  background: var(--cw-accent);
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 16px;
+}
+
+body:not(.blur) .navigation .create-shelf a:hover { background: var(--cw-accent-dark); }
 
 body:not(.blur) .app-content {
   background: var(--cw-surface);
   border: 1px solid var(--cw-border);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, .05);
-  padding: 4px 28px 28px;
+  border-radius: 10px;
+  box-shadow: var(--cw-shadow);
+  padding: 4px 22px 22px;
 }
 
-body:not(.blur) .container-fluid .book .cover span img,
-body:not(.blur) .container-fluid .single .cover img {
-  border: 0;
-  border-radius: 8px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, .18);
-  transition: box-shadow .2s ease, transform .2s ease;
-}
-
-body:not(.blur) .container-fluid .book:hover .cover span img {
-  box-shadow: 0 14px 30px rgba(15, 23, 42, .24);
-  transform: translateY(-3px);
-}
-
-body:not(.blur) .container-fluid .book .meta .title { color: var(--cw-ink); }
-body:not(.blur) .container-fluid .book .meta .author { color: var(--cw-muted); }
-
-body:not(.blur) .btn {
-  border-radius: 8px;
-  font-weight: 600;
-  padding: 8px 14px;
-  transition: box-shadow .15s ease, transform .15s ease;
-}
-
-body:not(.blur) .btn:hover { transform: translateY(-1px); }
-body:not(.blur) .btn-default { background: #fff; border-color: #cbd5e1; color: #334155; }
-body:not(.blur) .btn-primary { background: var(--cw-accent); border-color: var(--cw-accent); }
-
-body:not(.blur) .panel,
-body:not(.blur) .modal-content,
-body:not(.blur) .table {
+body:not(.blur) .well {
+  background: #f7f8fa;
   border-color: var(--cw-border);
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: none;
 }
 
-body:not(.blur) .table > thead > tr > th { border-bottom-color: var(--cw-border); color: #475569; }
-body:not(.blur) .table-striped > tbody > tr:nth-of-type(odd) { background: #f8fafc; }
-
-/* Settings checkboxes become accessible switches without changing form values. */
-body:not(.blur) .app-content form .form-group > input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
-  background: #cbd5e1;
+/* The login/register pages are a single card, so the surrounding shell drops
+   its own card chrome instead of nesting one box inside another. */
+body:not(.blur).login .app-content,
+body:not(.blur).register .app-content {
+  background: transparent;
   border: 0;
-  border-radius: 999px;
-  cursor: pointer;
-  display: inline-block;
-  height: 24px;
-  margin: 0 10px 0 0;
-  position: relative;
-  vertical-align: middle;
-  width: 44px;
-  transition: background .2s ease;
+  box-shadow: none;
+  padding: 0;
 }
 
-body:not(.blur) .app-content form .form-group > input[type="checkbox"]::after {
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, .3);
-  content: "";
-  height: 18px;
-  left: 3px;
-  position: absolute;
-  top: 3px;
-  transition: transform .2s ease;
-  width: 18px;
+body:not(.blur).login .well,
+body:not(.blur).register .well {
+  background: var(--cw-surface);
+  box-shadow: var(--cw-shadow);
+  margin-top: 24px;
+  padding: 24px;
 }
 
-body:not(.blur) .app-content form .form-group > input[type="checkbox"]:checked { background: var(--cw-accent); }
-body:not(.blur) .app-content form .form-group > input[type="checkbox"]:checked::after { transform: translateX(20px); }
-body:not(.blur) .app-content form .form-group > input[type="checkbox"]:focus { box-shadow: 0 0 0 3px rgba(37, 99, 235, .2); outline: 0; }
-body:not(.blur) .app-content form .form-group > input[type="checkbox"] + label { cursor: pointer; font-weight: 500; vertical-align: middle; }
+body:not(.blur).login .well button[name="submit"],
+body:not(.blur).register .well button[name="submit"] {
+  background: var(--cw-accent);
+  border-color: var(--cw-accent);
+  color: #fff;
+}
 
-body:not(.blur) .pagination > li > a {
+body:not(.blur).login .well button[name="submit"]:hover,
+body:not(.blur).register .well button[name="submit"]:hover {
+  background: var(--cw-accent-dark);
+  border-color: var(--cw-accent-dark);
+  color: #fff;
+}
+
+/* ---------- Book grid ---------- */
+
+body:not(.blur) .container-fluid .discover { margin-bottom: 28px; }
+body:not(.blur) .container-fluid .new-books h2 { margin: 28px 0 0; }
+
+body:not(.blur) .container-fluid .book .cover span img,
+body:not(.blur) .container-fluid .single .cover img {
+  border: 1px solid var(--cw-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, .12);
+  transition: box-shadow .15s ease;
+}
+
+body:not(.blur) .container-fluid .book:hover .cover span img {
+  box-shadow: 0 4px 12px rgba(16, 24, 40, .18);
+}
+
+body:not(.blur) .container-fluid .book .meta .title {
+  color: var(--cw-ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+body:not(.blur) .container-fluid .book .meta .author,
+body:not(.blur) .container-fluid .book .meta .author a:not(.btn) { color: var(--cw-muted); }
+body:not(.blur) .container-fluid .book .meta .author a:not(.btn):hover { color: var(--cw-accent-dark); }
+
+/* ---------- Buttons ---------- */
+
+body:not(.blur) .btn {
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  transition: background-color .12s ease, border-color .12s ease, color .12s ease;
+}
+
+body:not(.blur) .btn-sm,
+body:not(.blur) .btn-xs { font-size: 12px; }
+
+/* Buttons carry their own text colour so nested links, glyphicons and
+   `<a class="btn">` never fall back to the generic link colour. */
+body:not(.blur) .btn-default,
+body:not(.blur) .btn-default a,
+body:not(.blur) a.btn-default {
+  background: var(--cw-surface);
+  border-color: var(--cw-border-strong);
+  color: var(--cw-body);
+}
+
+body:not(.blur) .btn-default:hover,
+body:not(.blur) .btn-default:focus,
+body:not(.blur) .btn-default:active,
+body:not(.blur) .btn-default a:hover,
+body:not(.blur) a.btn-default:hover,
+body:not(.blur) a.btn-default:focus,
+body:not(.blur) .open > .dropdown-toggle.btn-default {
+  background: #f1f3f6;
+  border-color: var(--cw-border-strong);
+  color: var(--cw-ink);
+}
+
+body:not(.blur) .btn-primary,
+body:not(.blur) .btn-primary a,
+body:not(.blur) a.btn-primary,
+body:not(.blur) .btn-primary .glyphicon {
+  background-color: var(--cw-accent);
+  border-color: var(--cw-accent);
+  color: #fff;
+}
+
+body:not(.blur) .btn-primary a,
+body:not(.blur) .btn-primary .glyphicon { background-color: transparent; border: 0; }
+
+body:not(.blur) .btn-primary:hover,
+body:not(.blur) .btn-primary:focus,
+body:not(.blur) .btn-primary:active,
+body:not(.blur) .btn-primary.active,
+body:not(.blur) a.btn-primary:hover,
+body:not(.blur) a.btn-primary:focus,
+body:not(.blur) .open > .dropdown-toggle.btn-primary {
+  background-color: var(--cw-accent-dark);
+  border-color: var(--cw-accent-dark);
+  color: #fff;
+}
+
+body:not(.blur) .btn-primary.disabled,
+body:not(.blur) .btn-primary[disabled],
+body:not(.blur) fieldset[disabled] .btn-primary {
+  background-color: #9dc7bf;
+  border-color: #9dc7bf;
+  color: #fff;
+}
+
+body:not(.blur) .btn-success,
+body:not(.blur) a.btn-success { background-color: #3f8f5f; border-color: #3f8f5f; color: #fff; }
+body:not(.blur) .btn-success:hover,
+body:not(.blur) a.btn-success:hover,
+body:not(.blur) a.btn-success:focus { background-color: #34774f; border-color: #34774f; color: #fff; }
+
+body:not(.blur) .btn-info,
+body:not(.blur) a.btn-info { background-color: #eef1f5; border-color: var(--cw-border-strong); color: var(--cw-body); }
+body:not(.blur) .btn-info:hover,
+body:not(.blur) a.btn-info:hover,
+body:not(.blur) a.btn-info:focus { background-color: #e2e6ec; border-color: var(--cw-border-strong); color: var(--cw-ink); }
+
+body:not(.blur) .btn-danger,
+body:not(.blur) a.btn-danger { background-color: #b4453f; border-color: #b4453f; color: #fff; }
+body:not(.blur) .btn-danger:hover,
+body:not(.blur) a.btn-danger:hover,
+body:not(.blur) a.btn-danger:focus { background-color: #983934; border-color: #983934; color: #fff; }
+
+body:not(.blur) .btn-warning,
+body:not(.blur) a.btn-warning { background-color: #b57b2c; border-color: #b57b2c; color: #fff; }
+body:not(.blur) .btn-warning:hover,
+body:not(.blur) a.btn-warning:hover,
+body:not(.blur) a.btn-warning:focus { background-color: #986725; border-color: #986725; color: #fff; }
+
+body:not(.blur) .btn:focus,
+body:not(.blur) .btn:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(47, 139, 122, .2); }
+
+/* ---------- Panels, tables, modals ---------- */
+
+body:not(.blur) .panel,
+body:not(.blur) .modal-content {
   border-color: var(--cw-border);
-  color: #475569;
-  margin: 0 2px;
+  border-radius: 10px;
+  box-shadow: var(--cw-shadow);
 }
 
-body:not(.blur) .pagination > .active > a { background: var(--cw-accent); border-color: var(--cw-accent); }
+body:not(.blur) .panel-default > .panel-heading {
+  background: #f7f8fa;
+  border-color: var(--cw-border);
+  color: var(--cw-ink);
+}
+
+body:not(.blur) .panel-title { font-size: 14px; font-weight: 600; }
+
+body:not(.blur) .table { border-color: var(--cw-border); }
+body:not(.blur) .table > thead > tr > th {
+  border-bottom: 1px solid var(--cw-border);
+  color: var(--cw-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+body:not(.blur) .table > tbody > tr > td { border-top-color: var(--cw-border); }
+body:not(.blur) .table-striped > tbody > tr:nth-of-type(odd) { background: #fafbfc; }
+
+body:not(.blur) .dropdown-menu {
+  border-color: var(--cw-border);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, .1);
+  padding: 4px;
+}
+
+body:not(.blur) .dropdown-menu > li > a { border-radius: 5px; color: var(--cw-body); padding: 6px 10px; }
+body:not(.blur) .dropdown-menu > li > a:hover,
+body:not(.blur) .dropdown-menu > li > a:focus { background: var(--cw-accent-soft); color: var(--cw-accent-dark); }
+
+/* ---------- Pagination ---------- */
+
+body:not(.blur) .pagination > li > a,
+body:not(.blur) .pagination > li > span {
+  border-color: var(--cw-border-strong);
+  color: var(--cw-body);
+  margin: 0 2px;
+  padding: 5px 11px;
+}
+
+body:not(.blur) .pagination > li > a:hover { background: #f1f3f6; color: var(--cw-ink); }
+
+body:not(.blur) .pagination > .active > a,
+body:not(.blur) .pagination > .active > span,
+body:not(.blur) .pagination > .active > a:hover,
+body:not(.blur) .pagination > .active > span:hover {
+  background: var(--cw-accent);
+  border-color: var(--cw-accent);
+  color: #fff;
+}
+
+body:not(.blur) .navbar-default .navbar-toggle {
+  border-color: var(--cw-border-strong);
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+body:not(.blur) .navbar-default .navbar-toggle:hover,
+body:not(.blur) .navbar-default .navbar-toggle:focus { background: #f1f3f6; }
+body:not(.blur) .navbar-default .navbar-toggle .icon-bar { background-color: var(--cw-body); }
 
 @media (max-width: 767px) {
   body:not(.blur) .app-header { margin-bottom: 12px; }
   body:not(.blur) .app-shell { padding: 0 10px; }
-  body:not(.blur) .app-content { border-radius: 12px; padding: 4px 16px 20px; }
+  body:not(.blur) .app-content { border-radius: 8px; padding: 4px 14px 18px; }
+  body:not(.blur) .app-sidebar { padding-right: 0; }
   body:not(.blur) .navbar-form .input-group { min-width: 100%; }
+
+  /* The sidebar links are relocated into the collapsed menu, so the sidebar
+     card would otherwise render as an empty box. */
+  body:not(.blur) .navigation {
+    background: none;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
 }
